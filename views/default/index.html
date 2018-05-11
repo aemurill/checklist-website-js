@@ -3,16 +3,109 @@
 {{block head}}
 <script src="{{=URL('static', 'js/vue.js')}}"></script>
 <script>
-    var my_url = "{{=URL('api', 'my_method')}}";
+    var  checklist_url = "{{=URL('api', 'get_checklists', hash_vars=False)}}";
+    var  add_checklist_url = "{{=URL('api', 'add_checklist', user_signature=True)}}";
+    var  del_checklist_url = "{{=URL('api', 'del_checklist', user_signature=True)}}";
 </script>
 {{end}}
 
 <div class="main_content">
+    <!--Every memo will be a div.  The div will contain:
 
+    A div for the memo text.
+    A div for the textarea for editing the memo.  You can switch between showing the div above, and the textarea, on the basis of a boolean is_being_edited variable associated with each memo.
+    The buttons to Save and Cancel an edit, shown only if the memo is being edited.
+    The buttons to Delete, Edit, and Public/Private a memo, which are shown only if the memo is not being edited. -->
     <div id="vue-div" class="display:none">
         <!-- Your code goes here.  Remember to call $("#vue-div").show() once you get the data for the first time. -->
+        <div class="add_btn" >
+            <button v-if="!is_adding_checklist && logged_in" class="btn rounded"
+                v-on:click="add_checklist_button()":disabled="!logged_in"
+                v-bind:class="{'disabled': !logged_in}">
+                <i class="fa fa-plus"></i> Add track
+            </button>
+            <button v-if="is_adding_checklist && logged_in" class="btn red rounded" v-on:click="add_checklist_button()">
+                <i class="fa fa-times"></i> Cancel
+            </button>
+            <div class="offline_welcome" v-if="!logged_in" >Log in to create, view, and modify your own checklists! </div>
+        </div>
+        
+        
+        
+        <div v-if="is_adding_checklist" id="add_checklist_div">
+            <form action="#" v-on:submit.prevent="add_checklist" class="form-horizontal" enctype="multipart/form-data" method="post">
+                <div class="form-group" id="no_table_title_row">
+                    <div>
+                        <input class="form-control string" id="no_table_title" name="Title" type="text" v-model="form_title" placeholder="Title"/>
+                        <span class="help-block"></span>
+                    </div>
+                </div>
+                <div class="form-group" id="no_table_memo__row">
+                    <div>
+                        <input class="form-control string" id="no_table_memo" name="Memo" type="text" v-model="form_memo" placeholder="Write memo here."/>
+                        <span class="help-block"></span>
+                    </div>
+                </div>
+                <div class="form-group" id="submit_checklist__row">
+                    <div>
+                        <input class="btn btn-primary" id="add_checklist_submit" type="submit" value="Submit" />
+                        <i v-if="add_pending" class="fa fa-spinner fa-pulse"></i>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        
+        
+        
+        
+        <div v-for="cl in checklists" class="memo">
+            <div class="memo_text">
+                <div class="memo_title">
+                    ${cl.title}
+                </div>
+                <div class="memo_content">
+                    <p>${cl.memo}</p>
+                </div>
+            </div>
+            <div class="memo_textarea">
+            </div>
+            <div>
+                <div class="button_list">
+                    <div class="add_btn" >
+                        <button v-if="!is_adding_checklist && logged_in" class="btn red rounded"
+                                v-on:click="add_checklist_button()":disabled="!logged_in"
+                                v-bind:class="{'disabled': !logged_in}">
+                            <i class="fa fa-plus"></i> Add track
+                        </button>
+                        <button v-if="is_adding_checklist && logged_in" class="btn red rounded" v-on:click="add_checklist_button()">
+                            <i class="fa fa-times"></i> Cancel
+                        </button>
+                    </div>
+                    <div class="buttons">
+                        <a  class="btn rounded" href="{{=URL('default', 
+                        'toggle_public', args=[], user_signature=True)}}">
+                            <i class="fa fa-user"></i>
+                        </a>
+                        <a  class="btn green rounded" href="{{=URL('default', 
+                        'edit', args=[], user_signature=True)}}">
+                            <i class="fa fa-edit fa-lg"></i>
+                        </a>
+                        <a  class="btn red rounded" href="{{=URL('default', 
+                        'delete', args=[], user_signature=True)}}">
+                            <i class="fa fa-trash fa-lg"></i>
+                        </a> 
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div v-if="has_more" class="show_more">
+        <button class="btn btn-default rounded" v-on:click="get_more()">
+          <i class="fa fa-ellipsis-h"></i>
+          Load more
+        </button>
+      </div>
     </div>
-
 </div>
 
 <script src="{{=URL('static', 'js/default_index.js')}}"></script>

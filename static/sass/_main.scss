@@ -1,3 +1,55 @@
 .colorful {
   color: $clrHilight;
 }
+
+div.main_content {
+  padding: 10px;
+}
+
+div.add_btn {
+  margin: 5px;
+  a {
+    padding: 10px;
+  }
+}
+
+div.offline_welcome{
+  font-weight: bold;
+  font-size: 150%
+}
+
+div.memo {
+  margin: 5px;
+  border: 2px solid gray;
+  padding: 5px;
+
+  div.memo_title {
+    font-weight: bold;
+    font-size: 150%;
+  }
+  div.button_list {
+    text-align: right;
+    div.buttons {
+        display: inline-block;
+    }
+    margin-top: 10px;
+    
+    .blue{
+      background-color: blue;
+    }
+    .green{
+      background-color: green;
+    }
+    .red{
+      background-color: red;
+    }
+    
+    a.btn2{
+        background-color: gray;
+    }
+    
+    a.btn {
+      padding: 10px;
+    }
+  }
+}
