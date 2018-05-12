@@ -15,14 +15,11 @@ def get_checklists():
     has_more = False
     rows = None
     if logged_in is not None:
-        rows = db((db.checklist.is_public == True) | (db.checklist.user_email == get_user_email()) ).select(limitby=(start_idx, end_idx + 1))
+        rows = db(
+            (db.checklist.is_public == True) | (db.checklist.user_email == get_user_email())
+            ).select(limitby=(start_idx, end_idx + 1))
     else:
         rows = db(db.checklist.is_public == True).select(limitby=(start_idx, end_idx + 1))
-    #x = 0
-    # for row in rows:
-        # x = x + 1
-        # print('x ', row)
-    #rows = db().select(db.checklist.ALL, limitby=(start_idx, end_idx + 1))
     print('start ', start_idx, ' end ', end_idx)
     for i, r in enumerate(rows):
         if i < end_idx - start_idx:
@@ -70,22 +67,6 @@ def toggle_visibility():
 @auth.requires_login()
 @auth.requires_signature()
 def edit_checklist():
-    
-    # cl_id = int(request.vars.cl_id) if request.vars.cl_id is not None else 0
-    # q = ((db.checklist.user_email == auth.user.email) &
-             # (db.checklist.id == cl_id))
-    # I fish out the first element of the query, if there is one, otherwise None.
-    # cl = db(q).select().first()
-    # if cl is None:
-        # session.flash = T('Not Authorized')
-        # redirect(URL('default', 'index')) 
-    # form = SQLFORM(db.checklist, record=cl)
-    # if form.process():
-        # form.record.update_record(
-        # title = request.vars.title,
-        # memo = request.vars.memo,
-        # )
-        # print("updated")
     cl = db.checklist(request.vars.cl_id)
     cl.update_record(
         title = request.vars.title,
@@ -98,4 +79,4 @@ def edit_checklist():
 @auth.requires_signature()
 def del_checklist():
     db(db.checklist.id == request.vars.cl_id).delete()
-    return "ok"
+    return "deleted"
