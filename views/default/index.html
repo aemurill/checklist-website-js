@@ -5,7 +5,9 @@
 <script>
     var  checklist_url = "{{=URL('api', 'get_checklists', hash_vars=False)}}";
     var  add_checklist_url = "{{=URL('api', 'add_checklist', user_signature=True)}}";
+    var  edit_checklist_url = "{{=URL('api', 'edit_checklist', user_signature=True)}}";
     var  del_checklist_url = "{{=URL('api', 'del_checklist', user_signature=True)}}";
+    var  toggle_visibilty_url = "{{=URL('api', 'toggle_visibility', user_signature=True)}}";
 </script>
 {{end}}
 
@@ -58,36 +60,79 @@
                 <div class="memo_title">
                     ${cl.title}
                 </div>
-                <div v-if="currently_editing != cl.id" class="memo_content">
+                <div class="memo_content">
                     <p>${cl.memo}</p>
                 </div>
-                <div v-if="currently_editing == cl.id" class="memo_content">
-                    <p>EDITING</p>
+                <!-- Division for editing -->
+                <div v-if="selected_checklist_idx == cl._idx" class="memo_content">
+                    <form action="#" v-on:submit.prevent="edit_checklist" 
+                    class="form-horizontal" enctype="multipart/form-data" method="post">
+                        <div class="form-group" id="no_table_title_row">
+                            <div>
+                                <input class="form-control string" id="no_table_title"
+                               name="Title" type="text" v-model="form_title" placeholder="New Title" />
+                                <span class="help-block"></span>
+                            </div>
+                        </div>
+                        <div class="form-group" id="no_table_memo__row">
+                            <div>
+                                <input class="form-control string" id="no_table_memo" name="Memo"
+                                type="text" v-model="form_memo" placeholder="New Memo"/>
+                                <span class="help-block"></span>
+                            </div>
+                        </div>
+                        <div class="form-group" id="save_checklist__row">
+                            <div>
+                                <input class="btn btn-primary" id="edit_checklist_submit" type="submit"
+                                value="Save" />
+                                <i v-if="edit_pending" class="fa fa-spinner fa-pulse"></i>
+                            </div>
+                        </div>
+                    </form>
+                    
                 </div>
             </div>
+            <!-- Button List -->
             <div>
                 <div class="button_list">
                     
                     <div class="buttons">
                         <!-- Visibility -->
-                        <button v-if="logged_in" class="btn rounded"
-                                v-on:click="add_checklist_button()":disabled="!logged_in"
+                        <button v-if="(!cl.is_public) && (auth_email == cl.user_email)" class="btn rounded"
+                                v-on:click="toggle_is_public(cl._idx)":disabled="!logged_in"
                                 v-bind:class="{'disabled': !logged_in}">
                             <i class="fa fa-user"></i>
                         </button>
+                        <button v-if="(cl.is_public) && (auth_email == cl.user_email)" class="btn rounded"
+                                v-on:click="toggle_is_public(cl._idx)":disabled="!logged_in"
+                                v-bind:class="{'disabled': !logged_in}">
+                            <i class="fa fa-users"></i>
+                        </button>
+                        <!-- Not Logged In -->
+                        <button v-if="auth_email != cl.user_email" class="btn grey rounded">
+                            <i class="fa fa-users"></i>
+                        </button>
+
                         <!-- Editing -->
-                        <button v-if="(currently_editing != cl.id) && (logged_in)" class="btn green rounded"
-                                v-on:click="edit_checklist_button(cl.id)":disabled="!logged_in"
+                        <button v-if="(auth_email == cl.user_email) && (selected_checklist_idx != cl._idx)" class="btn green rounded"
+                                v-on:click="edit_checklist_button(cl._idx)":disabled="!logged_in"
                                 v-bind:class="{'disabled': !logged_in}">
                             <i class="fa fa-edit fa-lg"></i>
                         </button>
-                        <button v-if="(currently_editing == cl.id) && (logged_in)" class="btn red rounded" v-on:click="edit_checklist_button(cl.id)">
+                        <button v-if="(selected_checklist_idx == cl._idx) && (auth_email == cl.user_email)" class="btn red rounded" v-on:click="edit_checklist_button(cl._idx)">
                             <i class="fa fa-times"></i> Cancel
                         </button>
+                        <!-- Not Logged In -->
+                        <button v-if="auth_email != cl.user_email" class="btn grey rounded">
+                            <i class="fa fa-edit fa-lg"></i>
+                        </button>
                         <!-- Deletion -->
-                        <button v-if="logged_in" class="btn purple rounded"
-                                v-on:click="add_checklist_button()":disabled="!logged_in"
+                        <button v-if="(auth_email == cl.user_email)" class="btn purple rounded"
+                                v-on:click="delete_checklist(cl._idx)":disabled="!logged_in"
                                 v-bind:class="{'disabled': !logged_in}">
+                            <i class="fa fa-trash fa-lg"></i>
+                        </button>
+                        <button v-if="(auth_email != cl.user_email)" class="btn grey rounded">
                             <i class="fa fa-trash fa-lg"></i>
                         </button>
                     </div>

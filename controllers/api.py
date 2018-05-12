@@ -4,6 +4,10 @@ import time
 def get_checklists():
     logger.info('The session is: %r' % session)
     logged_in = auth.user is not None
+    if logged_in is True:
+        auth_email = get_user_email()
+    else:
+        auth_email = None
     
     start_idx = int(request.vars.start_idx) if request.vars.start_idx is not None else 0
     end_idx = int(request.vars.end_idx) if request.vars.end_idx is not None else 0
@@ -36,41 +40,62 @@ def get_checklists():
     return response.json(dict(
         checklists=checklists,
         has_more=has_more,
-        logged_in=logged_in,
+        auth_email=auth_email,
+        logged_in=logged_in
     ))
 
 @auth.requires_login()
 @auth.requires_signature()
 def add_checklist():
     cl_id = db.checklist.insert(
-        user_email = get_user_email(),
         title = request.vars.title,
         memo = request.vars.memo,
     )
     print(cl_id)
     cl = db.checklist(cl_id)
-    time.sleep(3)
+    time.sleep(1)
     print('adding_track')
     return response.json(dict(checklist=cl))
+    
 
 @auth.requires_login()
 @auth.requires_signature()
+def toggle_visibility():
+    cl = db.checklist(request.vars.cl_id)
+    cl.update_record(is_public = not cl.is_public)
+    print("toggled to: ")
+    return cl.is_public
+
+    
+@auth.requires_login()
+@auth.requires_signature()
 def edit_checklist():
-    q = ((db.checklist.user_email == auth.user.email) &
-             (db.checklist.id == request.args(0)))
+    
+    # cl_id = int(request.vars.cl_id) if request.vars.cl_id is not None else 0
+    # q = ((db.checklist.user_email == auth.user.email) &
+             # (db.checklist.id == cl_id))
     # I fish out the first element of the query, if there is one, otherwise None.
-    cl = db(q).select().first()
-    if cl is None:
-        session.flash = T('Not Authorized')
-        redirect(URL('default', 'index')) 
-    print(t_id)
-    t = db.checklist(t_id)
-    time.sleep(3)
-    print('add_track')
-    return response.json(dict(checklist=t))
+    # cl = db(q).select().first()
+    # if cl is None:
+        # session.flash = T('Not Authorized')
+        # redirect(URL('default', 'index')) 
+    # form = SQLFORM(db.checklist, record=cl)
+    # if form.process():
+        # form.record.update_record(
+        # title = request.vars.title,
+        # memo = request.vars.memo,
+        # )
+        # print("updated")
+    cl = db.checklist(request.vars.cl_id)
+    cl.update_record(
+        title = request.vars.title,
+        memo = request.vars.memo,
+    )
+    time.sleep(1)
+    return "updated"
 
 @auth.requires_login()
 @auth.requires_signature()
 def del_checklist():
-    db(db.checklist.id == request.vars.checklist_id).delete()
+    db(db.checklist.id == request.vars.cl_id).delete()
     return "ok"

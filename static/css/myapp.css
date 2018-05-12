@@ -60,10 +60,10 @@ div.memo div.button_list .purple {
   background-color: purple;
 }
 /* line 51, ../sass/_main.scss */
-div.memo div.button_list a.btn2 {
+div.memo div.button_list .grey {
   background-color: gray;
 }
 /* line 55, ../sass/_main.scss */
-div.memo div.button_list a.btn {
+div.memo div.button_list .btn {
   padding: 10px;
 }
