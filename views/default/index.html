@@ -69,15 +69,17 @@
                     class="form-horizontal" enctype="multipart/form-data" method="post">
                         <div class="form-group" id="no_table_title_row">
                             <div>
-                                <input class="form-control string" id="no_table_title"
-                               name="Title" type="text" v-model="form_title" placeholder="New Title" />
+                                <textarea class="form-control string" id="no_table_title"
+                               name="Title" type="text" v-model="form_title" placeholder="New Title">
+                               </textarea>
                                 <span class="help-block"></span>
                             </div>
                         </div>
                         <div class="form-group" id="no_table_memo__row">
                             <div>
-                                <input class="form-control string" id="no_table_memo" name="Memo"
-                                type="text" v-model="form_memo" placeholder="New Memo"/>
+                                <textarea class="form-control string" id="no_table_memo" name="Memo"
+                                type="text" v-model="form_memo" placeholder="New Memo">
+                                </textarea>
                                 <span class="help-block"></span>
                             </div>
                         </div>
