@@ -15,7 +15,7 @@ var app = function() {
     };
     
     function get_checklist_url(start_idx, end_idx) {
-        console.log('get_checklist_url');
+        // console.log('get_checklist_url');
         var pp = {
             start_idx: start_idx,
             end_idx: end_idx
@@ -24,9 +24,8 @@ var app = function() {
     }
     
     self.get_checklists = function () {
-        console.log("get_checklist");
+        // console.log("get_checklist");
         $.getJSON(get_checklist_url(0, 10), function (data) {
-            console.log("get_checklist" + data);
             self.vue.checklists = data.checklists;
             self.vue.has_more = data.has_more;
             self.vue.logged_in = data.logged_in;
@@ -35,7 +34,7 @@ var app = function() {
     
     self.get_more = function () {
         var num_checklists = self.vue.checklists.length;
-        console.log(num_checklists);
+        // console.log(num_checklists);
         $.getJSON(get_checklist_url(num_checklists, num_checklists + 10), function (data) {
             self.vue.has_more = data.has_more;
             self.extend(self.vue.checklists, data.checklists);
@@ -43,14 +42,14 @@ var app = function() {
     };
     
     self.add_checklist_button = function () {
-        // The button to add a track has been pressed.
+        // The button to add a checklist has been pressed.
         self.vue.is_adding_checklist = !self.vue.is_adding_checklist;
     };
 
     self.add_checklist = function () {
-        // The submit button to add a track has been added.
+        // The submit button to add a checklist has been added.
         self.vue.add_pending = true;
-        $.post(add_checklist_url,
+        $.post(add_checklist_url(),
             {
                 title: self.vue.form_title,
                 memo: self.vue.form_memo,
@@ -64,6 +63,36 @@ var app = function() {
 
     };
 
+    self.edit_checklist_button = function (checklist_id) {
+        // The button to edit a checklist has been pressed.
+        if (checklist_id == self.vue.currently_editing) {
+            // The checklist in editing has been pressed again (Canceled)
+            self.vue.currently_editing = 0;
+        }else{
+            // A different or non-zero checklist has been selected
+            self.vue.currently_editing = checklist_id;
+        }
+        // console.log("cl_id: " + checklist_id);
+        // console.log("CE: " + self.vue.currently_editing);
+    };
+
+    self.edit_checklist = function (track_id) {
+        // The submit button to edit a checklist has been added.
+        self.vue.add_pending = true;
+        $.post(edit_checklist_url(),
+            {
+                title: self.vue.form_title,
+                memo: self.vue.form_memo,
+                is_public: false,
+            },
+            function (data) {
+                $.web2py.enableElement($("#add_checklist_submit"));
+                self.vue.checklists.unshift(data.checklist);
+                self.vue.add_pending = false;
+            });
+
+    };
+    
 /*     self.edit_toggle = function (is_edit) {
         if (is_edit) {
             self.vue.is_editing = true;
@@ -91,7 +120,8 @@ var app = function() {
         unsafeDelimiters: ['!{', '}'],
         data: {
             is_adding_checklist: false,
-            is_editing: false,
+            // is_editing_checklist: false,
+            currently_editing: 0,
             add_pending: false,
             checklists: [],
             logged_in: false,
@@ -103,12 +133,13 @@ var app = function() {
             edit_toggle: self.edit_toggle,
             get_more: self.get_more,
             add_checklist: self.add_checklist,
-            add_checklist_button: self.add_checklist_button
+            add_checklist_button: self.add_checklist_button,
+            edit_checklist: self.edit_checklist,
+            edit_checklist_button: self.edit_checklist_button
         }
 
     });
 
-    console.log('print');
     self.get_checklists();
     $("#vue-div").show();
 

@@ -42,25 +42,27 @@ def get_checklists():
 @auth.requires_login()
 @auth.requires_signature()
 def add_checklist():
-    t_id = db.checklist.insert(
+    cl_id = db.checklist.insert(
         user_email = get_user_email(),
         title = request.vars.title,
         memo = request.vars.memo,
     )
-    print(t_id)
-    t = db.checklist(t_id)
+    print(cl_id)
+    cl = db.checklist(cl_id)
     time.sleep(3)
-    print('add_track')
-    return response.json(dict(checklist=t))
+    print('adding_track')
+    return response.json(dict(checklist=cl))
 
 @auth.requires_login()
 @auth.requires_signature()
 def edit_checklist():
-    t_id = db.checklist.insert(
-        user_email = get_user_email(),
-        title = request.vars.title,
-        memo = request.vars.memo,
-    )
+    q = ((db.checklist.user_email == auth.user.email) &
+             (db.checklist.id == request.args(0)))
+    # I fish out the first element of the query, if there is one, otherwise None.
+    cl = db(q).select().first()
+    if cl is None:
+        session.flash = T('Not Authorized')
+        redirect(URL('default', 'index')) 
     print(t_id)
     t = db.checklist(t_id)
     time.sleep(3)

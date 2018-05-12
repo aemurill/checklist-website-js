@@ -10,12 +10,6 @@
 {{end}}
 
 <div class="main_content">
-    <!--Every memo will be a div.  The div will contain:
-
-    A div for the memo text.
-    A div for the textarea for editing the memo.  You can switch between showing the div above, and the textarea, on the basis of a boolean is_being_edited variable associated with each memo.
-    The buttons to Save and Cancel an edit, shown only if the memo is being edited.
-    The buttons to Delete, Edit, and Public/Private a memo, which are shown only if the memo is not being edited. -->
     <div id="vue-div" class="display:none">
         <!-- Your code goes here.  Remember to call $("#vue-div").show() once you get the data for the first time. -->
         <div class="add_btn" >
@@ -64,37 +58,38 @@
                 <div class="memo_title">
                     ${cl.title}
                 </div>
-                <div class="memo_content">
+                <div v-if="currently_editing != cl.id" class="memo_content">
                     <p>${cl.memo}</p>
                 </div>
-            </div>
-            <div class="memo_textarea">
+                <div v-if="currently_editing == cl.id" class="memo_content">
+                    <p>EDITING</p>
+                </div>
             </div>
             <div>
                 <div class="button_list">
-                    <div class="add_btn" >
-                        <button v-if="!is_adding_checklist && logged_in" class="btn red rounded"
+                    
+                    <div class="buttons">
+                        <!-- Visibility -->
+                        <button v-if="logged_in" class="btn rounded"
                                 v-on:click="add_checklist_button()":disabled="!logged_in"
                                 v-bind:class="{'disabled': !logged_in}">
-                            <i class="fa fa-plus"></i> Add track
+                            <i class="fa fa-user"></i>
                         </button>
-                        <button v-if="is_adding_checklist && logged_in" class="btn red rounded" v-on:click="add_checklist_button()">
+                        <!-- Editing -->
+                        <button v-if="(currently_editing != cl.id) && (logged_in)" class="btn green rounded"
+                                v-on:click="edit_checklist_button(cl.id)":disabled="!logged_in"
+                                v-bind:class="{'disabled': !logged_in}">
+                            <i class="fa fa-edit fa-lg"></i>
+                        </button>
+                        <button v-if="(currently_editing == cl.id) && (logged_in)" class="btn red rounded" v-on:click="edit_checklist_button(cl.id)">
                             <i class="fa fa-times"></i> Cancel
                         </button>
-                    </div>
-                    <div class="buttons">
-                        <a  class="btn rounded" href="{{=URL('default', 
-                        'toggle_public', args=[], user_signature=True)}}">
-                            <i class="fa fa-user"></i>
-                        </a>
-                        <a  class="btn green rounded" href="{{=URL('default', 
-                        'edit', args=[], user_signature=True)}}">
-                            <i class="fa fa-edit fa-lg"></i>
-                        </a>
-                        <a  class="btn red rounded" href="{{=URL('default', 
-                        'delete', args=[], user_signature=True)}}">
+                        <!-- Deletion -->
+                        <button v-if="logged_in" class="btn purple rounded"
+                                v-on:click="add_checklist_button()":disabled="!logged_in"
+                                v-bind:class="{'disabled': !logged_in}">
                             <i class="fa fa-trash fa-lg"></i>
-                        </a> 
+                        </button>
                     </div>
                 </div>
             </div>
