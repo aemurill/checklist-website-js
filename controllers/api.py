@@ -50,7 +50,6 @@ def add_checklist():
     )
     print(cl_id)
     cl = db.checklist(cl_id)
-    time.sleep(1)
     print('adding_track')
     return response.json(dict(checklist=cl))
     
@@ -72,7 +71,6 @@ def edit_checklist():
         title = request.vars.title,
         memo = request.vars.memo,
     )
-    time.sleep(1)
     return "updated"
 
 @auth.requires_login()

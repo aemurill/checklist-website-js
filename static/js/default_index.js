@@ -47,6 +47,7 @@ var app = function() {
         $.getJSON(get_checklist_url(num_checklists, num_checklists + 10), function (data) {
             self.vue.has_more = data.has_more;
             self.extend(self.vue.checklists, data.checklists);
+            enumerate(self.vue.checklists);
         });
     };
     
@@ -69,16 +70,18 @@ var app = function() {
             },
             function (data) {
                 $.web2py.enableElement($("#add_checklist_submit"));
-                self.vue.checklists.unshift(data.checklist);
                 self.vue.add_pending = false;
-                enumerate(self.vue.checklists);
+                self.get_checklists();
                 self.vue.is_adding_checklist = false;
                 reset_form()
             });
     };
 
     self.toggle_is_public = function (checklist_idx) {
+        console.log(checklist_idx);
+        console.log(self.vue.checklists.length);
         var checklist = self.vue.checklists[checklist_idx];
+        console.log(checklist);
         checklist.visibility = !checklist.visibility;
         $.post(toggle_visibilty_url,
             {cl_id: checklist.id},
