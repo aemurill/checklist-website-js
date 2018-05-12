@@ -72,6 +72,7 @@ var app = function() {
                 self.vue.checklists.unshift(data.checklist);
                 self.vue.add_pending = false;
                 enumerate(self.vue.checklists);
+                self.vue.is_adding_checklist = false;
                 reset_form()
             });
     };
